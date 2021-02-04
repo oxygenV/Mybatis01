@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.dao.DogDao">
+<!--
+    数据库子段 id dname dage dgender
+    实体类字段 Id name age gender
+    需要自定义结果集 (数据库和实体类必须一一对应)
+
+    function A  别名的方式，编写繁琐，不可复用(字段名相同的也要写，数据库字段在前，实体类字段在后)
+    <select id="selectDogById" resultType="Dog">
+        select id id,dname name ,dage age ,dgender gender from Dog where id=#{id}
+    </select>
+
+    function B resultMap
+    id: 结果集唯一标示 type：结果集类型
+    -->
+    <resultMap id="DogResultMap" type="Dog">
+<!-- 指定对应的主键 property实体类字段 column数据库字段-->
+        <id property="id" column="id"></id>
+        <result property="name" column="dname"></result>
+        <result property="age" column="dage"></result>
+        <result property="gender" column="dgender"></result>
+    </resultMap>
+    <select id="selectDogById" resultMap="DogResultMap">
+        select * from Dog where id=#{id}
+    </select>
+
+</mapper>

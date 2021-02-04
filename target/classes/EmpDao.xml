@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+select delete update insert 用来区分不同类型的SQL语句
+
+update insert 属性详解
+id : 与mapper文件中的方法进行匹配，必须与mapper中方法名相同
+flushCache: 当前SQL语句的结果是否进入二级缓存
+statementType:
+    STATEMENT 表示一个SQL语句，不能防止SQL注入
+    PREPARED  PreparedStatement 预编译，防止SQL注入
+    CALLABLE  调用存储过程
+useGeneratedKeys：适用于insert update 可以返回自增值
+     属性值设置为true  keyProperty：主键自增列名
+    <insert id="saveUser" useGeneratedKeys="true" keyProperty="id">
+        user_name ：数据库字段    userName  ：实体类字段
+        insert into user(user_name) values(#{userName})
+    </insert>
+
+select属性详解
+resultType ：返回结果的类型
+    当返回的结果是一个集合的时候，只需要指定集合中的元素类型即可
+    <select id="selectAll" resultType="Emp">
+        select * from emp
+    </select>
+resultMap : 当查询结果包含另一个对象的引用时，需要自定义结果集合(一般在关联查询时)
+
+-->
+
+<!--
+SQL注入
+public Emp selectByNo(String empno);
+Emp emp = mapper.selectByNo("7369 or 1=1");
+select * from emp where empno=${empno}查询到的结果为14条
+select * from emp where empno=#{empno}查询到的结果为1条
+-->
+
+<!--
+参数获取值的方式 #{} ${} 实际项目中使用#{}
+#{}  select * from emp where empno=?
+${}  select * from emp where empno=7369
+#{}采用预编译，防止SQL注入
+${}将参数直接写入查询条件，存在SQL注入问题
+
+${}适用场景 当需要动态传入表名/列名的时候可以使用${}
+public Emp selectByNo(String t,Integer empno);
+select * from ${arg0} where empno=#{arg1}
+Emp emp = mapper.selectByNo("Emp",7369);
+SQL: select * from Emp where empno=?
+-->
+
+<!--
+当查询语句中包含多个参数，应该怎样获取需要的参数？
+1、如果是单个参数：
+    基本数据类型:随便写  select * from emp where empno=#{aksjdsad}
+    引用数据类型: 传递的是对象时，必须写属性名
+        List<Emp> emps = mapper.selByNoAndSal(emp);
+        select * from emp where empno=#{empno} and sal>#{sal}
+2、如果是多个参数
+ 多个参数，不能通过#{}来获取参数，只能通过arg0,arg1,param1,param2这样来获取，因为mybatis在传递多个参数时，
+ 会将这些参数封装到map中 eg map.put("arg0",param1)
+
+ A @Param注解
+ public List<Emp> selByNoAndSal2(
+        @Param("empno") Integer empno,
+        @Param("sal") Double sal);
+
+ List<Emp> emps = mapper.selByNoAndSal2(7369,500.0);
+
+  B  封装Map
+ public List<Emp> selByNoAndSal3(Map<String,Object> map);
+
+ Map<String,Object> map = new HashMap<String, Object>();
+ map.put("empno",7369);
+ map.put("sal",500.0);
+-->
+<mapper namespace="com.example.dao.EmpDao">
+    <select id="selByNoAndSal" resultType="Emp" databaseId="mysql">
+        select * from emp where empno=#{empno} and sal>#{sal}
+    </select>
+    <select id="selByNoAndSal2" resultType="Emp" databaseId="mysql">
+        select * from emp where empno=#{empno} and sal>#{sal}
+    </select>
+    <select id="selByNoAndSal3" resultType="Emp" databaseId="mysql">
+        select * from emp where empno=#{empno} and sal>#{sal}
+    </select>
+    <select id="selectByNo" resultType="Emp" databaseId="mysql">
+        select * from emp where empno=#{empno}
+    </select>
+<!--    <select id="selectByNo" resultType="Emp" databaseId="oracle">-->
+<!--        select * from emp where empno=#{empno}-->
+<!--    </select>-->
+    <delete id="delete">
+        delete from emp where empno=#{empno}
+    </delete>
+    <update id="update">
+        update emp set sal=#{sal} where empno=#{empno}
+    </update>
+    <insert id="save">
+        insert into emp(empno,ename) values(#{empno},#{ename})
+    </insert>
+    <select id="selectAll" resultType="Emp">
+        select * from emp
+    </select>
+<!--    当返回一个map集合，同时map集合中包含多个对象，必须在mapper方法上添加@MapKey("列名")，来指定返回对象的k-->
+    <select id="selectAll2" resultType="Emp">
+        select * from emp
+    </select>
+<!--    当返回值是map时，查询结果为 {字段名：查询到的值}-->
+    <select id="selectByNoReturnMap" resultType="map">
+        select * from emp where empno=#{empno}
+    </select>
+<!--+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+</mapper>

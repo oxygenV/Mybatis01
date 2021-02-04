@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<!--顺序很重要，必须按照文档规定顺序编写标签-->
+<configuration>
+<!--
+   引入外部文件
+   resource:表示从当前项目resource资源目录下加载
+   url:表示从本机加载，或网络url
+-->
+    <properties resource="db.properties"></properties>
+<!--    影响mybatis运行时效果 包含N多属性-->
+    <settings>
+<!--        开启驼峰标识验证 eg：db为user_name bean为userName-->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+<!--    给类配置别名-->
+    <typeAliases>
+<!--        单独配置-->
+<!--        <typeAlias type="com.example.entity.Emp" alias="Emp"></typeAlias>-->
+<!--        为此路径下每一个类配置别名-->
+        <package name="com.example.entity"/>
+    </typeAliases>
+<!--    自定义类型处理器-->
+<!--    <typeHandlers>-->
+<!--        <typeHandler handler=""></typeHandler>-->
+<!--        <package name=""/>-->
+<!--    </typeHandlers>-->
+<!--    选择数据库环境-->
+    <environments default="development">
+<!--        配置开发环境数据源-->
+<!--        配置当前环境名称-->
+        <environment id="development">
+<!-- 配置事务管理器 type属性 JDBC/MANAGER 使用JDBC管理事务或者框架自带事务管理-->
+            <transactionManager type="JDBC"/>
+<!--配置数据源 type属性 POOLED/UNPOOLED 使用连接池/每次打开和关闭一个数据库连接-->
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+        </environment>
+<!--        配置测试环境数据源-->
+        <environment id="testDev">
+            <transactionManager type="JDBC"></transactionManager>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+<!--    数据库移植，根据数据库标识执行对应SQL，看EmpDao.xml-->
+    <databaseIdProvider type="DB_VENDOR">
+        <property name="MySQL" value="mysql"/>
+        <property name="Oracle" value="oracle"/>
+    </databaseIdProvider>
+<!--映射mapper文件到xml-->
+    <mappers>
+<!--        resource:从项目的resource目录下加载-->
+<!--        <mapper resource="EmpDao.xml" class="" />-->
+<!--        class：类的完全限定名，可以使用注解-->
+<!--        <mapper class="com.example.dao.UserDaoAnnoation"></mapper>-->
+        <mapper resource="EmpDao.xml" />
+        <mapper resource="UserDao.xml"/>
+        <mapper resource="DogDao.xml"/>
+<!--
+A
+1、设置类完全限定路径
+2、更改maven build设置
+3、将xml放置于mapper同级目录
+
+B
+在resource下创建和mapper同样的目录 ，将xml文件放置
+-->
+<!--        <mapper class="com.example.dao.UserDao"></mapper>-->
+
+<!--        配置包下多个文件，必须执行B操作-->
+<!--        <package name="com.example.dao"/>-->
+
+    </mappers>
+</configuration>
